@@ -34,8 +34,8 @@ RUN curl -fL --retry 10 "https://www.kernel.org/pub/linux/kernel/v${KERNEL_VERSI
 
 # http://aufs.sourceforge.net/
 ENV AUFS_REPO       https://github.com/sfjro/aufs4-standalone
-ENV AUFS_BRANCH     aufs4.19.17+
-ENV AUFS_COMMIT     fcd7a821ba82453d4bf484c96fb65a75995b2fa8
+ENV AUFS_BRANCH     aufs4.19.63+
+ENV AUFS_COMMIT     1bb4caf8d7ee47acc49f05deb4da9d34884c44b2
 # we use AUFS_COMMIT to get stronger repeatability guarantees
 
 # Download AUFS and apply patches and files, then remove it
@@ -106,7 +106,8 @@ RUN curl -fL https://mirrors.edge.kernel.org/pub/linux/libs/security/linux-privs
 # Make sure the kernel headers are installed for aufs-util, and then build it
 ENV AUFS_UTIL_REPO    https://git.code.sf.net/p/aufs/aufs-util
 ENV AUFS_UTIL_BRANCH  aufs4.x-rcN
-ENV AUFS_UTIL_COMMIT  893a1330855d310b05936e22634f2d6318d00a36
+ENV AUFS_UTIL_COMMIT  81d51868758bd06fb4ed23816efe38a89f3218c9
+
 RUN set -ex \
 	&& git clone --single-branch -b "$AUFS_UTIL_BRANCH" "$AUFS_UTIL_REPO" /aufs-util \
 	&& git -C /aufs-util checkout --quiet "$AUFS_UTIL_COMMIT" \
@@ -319,7 +320,7 @@ RUN depmod -a -b "$ROOTFS" "$KERNEL_VERSION-boot2docker"
 COPY VERSION $ROOTFS/etc/version
 RUN cp -v "$ROOTFS/etc/version" /tmp/iso/version
 
-ENV DOCKER_CHANNEL edge
+ENV DOCKER_CHANNEL stable
 
 # Get the Docker binaries with version that matches our boot2docker version.
 RUN set -ex; \
