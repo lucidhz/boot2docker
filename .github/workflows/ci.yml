@@ -1,32 +1,21 @@
-name: GitHub CI
+name: Release
 
 on:
-
-  pull_request:
-
   push:
-
-  schedule:
-    - cron: 0 0 * * 0
+    tags: ["v*"]
 
 jobs:
-
-  build-test:
-
+  build:
+    name: Publish
     runs-on: ubuntu-latest
-
     steps:
-
-      - uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
-
-      - name: Prepare Environment
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Prepare environment
         run: docker system prune --all --force --volumes
       - name: Happy Eyeballs
         run: wget -qO- 'https://github.com/tianon/pgp-happy-eyeballs/raw/master/hack-my-builds.sh' | bash
-
-      - name: Check Kernel Config
+      - name: Check kernel config
         run: |
           kernDups="$(files/kernel-config.d/.check-dups.sh)"
           if [ -n "$kernDups" ]; then
@@ -34,15 +23,18 @@ jobs:
             echo >&2 "$kernDups"
             exit 1
           fi
-
       - name: Build ISO
         run: |
           set -Eeuo pipefail -x
           docker build -t boot2docker/boot2docker .
           docker run --rm boot2docker/boot2docker > boot2docker.iso
-
-      - name: '"ls"'
-        run: ls -lh boot2docker.iso
-
-      - name: '"docker images"'
-        run: docker images
+          docker run --rm boot2docker/boot2docker cat /tmp/stats/state.md /tmp/stats/sums.md > stats.md
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB}}
+        with:
+          draft: false
+          prerelease: false
+          body_path: stats.md
+          files: boot2docker.iso

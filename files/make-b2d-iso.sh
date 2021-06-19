@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 find -not -name '*.tcz' \
 	| cpio --create --format newc --dot \
-	| xz -9 --format=lzma --verbose --verbose --threads=0 --extreme \
+	| xz -9 --format=lzma --verbose --threads=0 --extreme \
 	> /tmp/iso/boot/initrd.img
 
 # volume label (https://github.com/boot2docker/boot2docker/issues/1347)
@@ -32,7 +32,7 @@ mkdir -p /tmp/stats
 	echo '```'
 ) | tee /tmp/stats/sums.md
 {
-	echo "- Docker [v$DOCKER_VERSION](https://github.com/docker/docker-ce/releases/tag/v$DOCKER_VERSION)"
+	echo "- Docker [v$DOCKER_VERSION](https://docs.docker.com/engine/release-notes/)"
 
 	echo "- Linux [v$LINUX_VERSION](https://cdn.kernel.org/pub/linux/kernel/v4.x/ChangeLog-$LINUX_VERSION)"
 
@@ -40,8 +40,9 @@ mkdir -p /tmp/stats
 
 	echo "- Parallels Tools v$PARALLELS_VERSION" # https://github.com/boot2docker/boot2docker/pull/1332#issuecomment-420273330
 
-	ovtVersion="$(tcl-chroot vmtoolsd --version | grep -oE 'version [^ ]+' | cut -d' ' -f2)"
-	echo "- VMware Tools (\`open-vm-tools\`) [v$ovtVersion](http://distro.ibiblio.org/tinycorelinux/$TCL_MAJOR/x86_64/tcz/open-vm-tools.tcz.info)"
+	ovtVersion=$(wget -qO- http://repo.tinycorelinux.net/11.x/x86_64/tcz/open-vm-tools.tcz.info | grep -oE 'Version:	[^ ]+' | cut -d$'\t' -f2)
+
+	echo "- VMware Tools (\`open-vm-tools\`) [v$ovtVersion](http://repo.tinycorelinux.net/$TCL_MAJOR/x86_64/tcz/open-vm-tools.tcz.info)"
 
 	echo "- VirtualBox Guest Additions [v$VBOX_VERSION](https://download.virtualbox.org/virtualbox/$VBOX_VERSION/)"
 

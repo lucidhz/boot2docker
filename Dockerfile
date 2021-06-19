@@ -13,7 +13,6 @@ RUN apt-get update; \
 		gcc \
 		git \
 		gnupg dirmngr \
-		golang-go \
 		kmod \
 		libc6-dev \
 		libelf-dev \
@@ -36,13 +35,13 @@ RUN echo 'progress = dot:giga' >> ~/.wgetrc; \
 WORKDIR /rootfs
 
 # updated via "update.sh"
-ENV TCL_MIRRORS http://distro.ibiblio.org/tinycorelinux http://repo.tinycorelinux.net
+ENV TCL_MIRRORS http://repo.tinycorelinux.net http://mirrors.163.com/tinycorelinux
 ENV TCL_MAJOR 11.x
-ENV TCL_VERSION 11.0
+ENV TCL_VERSION 11.1
 
-# http://distro.ibiblio.org/tinycorelinux/8.x/x86_64/archive/8.2.1/distribution_files/rootfs64.gz.md5.txt
+# http://mirrors.163.com/tinycorelinux/11.x/x86_64/release/distribution_files/rootfs64.gz.md5.txt
 # updated via "update.sh"
-ENV TCL_ROOTFS="rootfs64.gz" TCL_ROOTFS_MD5="ea8699a39115289ed00d807eac4c3118"
+ENV TCL_ROOTFS="rootfs64.gz" TCL_ROOTFS_MD5="3c5846fd0eb2f4ecc15e424678ef7919"
 
 COPY files/tce-load.patch files/udhcpc.patch /tcl-patches/
 
@@ -178,10 +177,10 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 4.19.103
+ENV LINUX_VERSION 4.19.195
 
-RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
-	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
+RUN wget -O /linux.tar.xz "http://mirrors.163.com/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
+	wget -O /linux.tar.asc "http://mirrors.163.com/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
 	\
 # decompress (signature is for the decompressed file)
 	xz --decompress /linux.tar.xz; \
@@ -252,8 +251,8 @@ RUN setConfs="$(grep -vEh '^[#-]' /kernel-config.d/* | sort -u)"; \
 	\
 	make -C /usr/src/linux \
 		defconfig \
-		kvmconfig \
-		xenconfig \
+		kvm_guest.config \
+		xen.config \
 		> /dev/null; \
 	\
 	( \
@@ -295,7 +294,7 @@ RUN setConfs="$(grep -vEh '^[#-]' /kernel-config.d/* | sort -u)"; \
 	done; \
 	[ -z "$ret" ] || exit "$ret"
 
-RUN make -C /usr/src/linux -j "$(nproc)" bzImage modules; \
+RUN make -C /usr/src/linux -j "$(nproc)" bzImage modules > /dev/null; \
 	make -C /usr/src/linux INSTALL_MOD_PATH="$PWD" modules_install
 RUN mkdir -p /tmp/iso/boot; \
 	cp -vLT /usr/src/linux/arch/x86_64/boot/bzImage /tmp/iso/boot/vmlinuz
@@ -333,9 +332,9 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 5.2.36
+ENV VBOX_VERSION 5.2.44
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 6124287b7a1790436a9b0b2601154b50c6cd6e680aeff45c61d03ee1158f3eb9
+ENV VBOX_SHA256 9883ee443a309f4ffa1d5dee2833f9e35ced598686c36d159f410e5edbac1ca4 
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -360,17 +359,17 @@ RUN make -C /usr/src/vbox/amd64/src/vboxguest -j "$(nproc)" \
 
 # TCL includes VMware's open-vm-tools 10.2.0.1608+ (no reason to compile that ourselves)
 RUN tcl-tce-load open-vm-tools; \
-	tcl-chroot vmhgfs-fuse --version; \
-	tcl-chroot vmtoolsd --version
+	tcl-chroot vmhgfs-fuse --version;
+	#tcl-chroot vmtoolsd --version
 
-ENV PARALLELS_VERSION 13.3.0-43321
+ENV PARALLELS_VERSION 16.5.0-49183
 
 RUN wget -O /parallels.tgz "https://download.parallels.com/desktop/v${PARALLELS_VERSION%%.*}/$PARALLELS_VERSION/ParallelsTools-$PARALLELS_VERSION-boot2docker.tar.gz"; \
 	mkdir /usr/src/parallels; \
 	tar --extract --file /parallels.tgz --directory /usr/src/parallels --strip-components 1; \
 	rm /parallels.tgz
 RUN cp -vr /usr/src/parallels/tools/* ./; \
-	make -C /usr/src/parallels/kmods -f Makefile.kmods -j "$(nproc)" installme \
+	make -C /usr/src/parallels/kmods -f Makefile.kmods -j "$(nproc)" compile \
 		SRC='/usr/src/linux' \
 		KERNEL_DIR='/usr/src/linux' \
 		KVER="$(< /usr/src/linux/include/config/kernel.release)" \
@@ -381,8 +380,9 @@ RUN cp -vr /usr/src/parallels/tools/* ./; \
 
 # https://github.com/xenserver/xe-guest-utilities/tags
 # updated via "update.sh"
-ENV XEN_VERSION 7.18.0
+ENV XEN_VERSION 7.30.0
 
+RUN wget -qO- https://dl.google.com/go/go1.16.5.linux-amd64.tar.gz | tar zxf - -C /usr/local --strip-components=1
 RUN wget -O /xen.tgz "https://github.com/xenserver/xe-guest-utilities/archive/v$XEN_VERSION.tar.gz"; \
 	mkdir /usr/src/xen; \
 	tar --extract --file /xen.tgz --directory /usr/src/xen --strip-components 1; \
@@ -393,7 +393,7 @@ RUN cd /usr/src/xen; \
 	wget -O sys.tgz 'https://github.com/golang/sys/archive/fc99dfbffb4e5ed5758a37e31dd861afe285406b.tar.gz'; \
 	tar -xf sys.tgz -C GOPATH/src/golang.org/x/sys --strip-components 1; \
 	rm sys.tgz
-RUN GOPATH='/usr/src/xen/GOPATH' make -C /usr/src/xen -j "$(nproc)" PRODUCT_VERSION="$XEN_VERSION" RELEASE='boot2docker'; \
+RUN GOPATH='/usr/src/xen/GOPATH' GOPROXY=goproxy.cn make -C /usr/src/xen -j "$(nproc)" PRODUCT_VERSION="$XEN_VERSION" RELEASE='boot2docker'; \
 	tar --extract --file "/usr/src/xen/build/dist/xe-guest-utilities_$XEN_VERSION-boot2docker_x86_64.tgz"; \
 	tcl-chroot xenstore || [ "$?" = 1 ]
 
@@ -412,10 +412,10 @@ RUN wget -O usr/local/sbin/cgroupfs-mount "https://github.com/tianon/cgroupfs-mo
 	chmod +x usr/local/sbin/cgroupfs-mount; \
 	tcl-chroot cgroupfs-mount
 
-ENV DOCKER_VERSION 19.03.6
+ENV DOCKER_VERSION 20.10.7
 
 # Get the Docker binaries with version that matches our boot2docker version.
-RUN DOCKER_CHANNEL='edge'; \
+RUN DOCKER_CHANNEL='stable'; \
 	case "$DOCKER_VERSION" in \
 # all the pre-releases go in the "test" channel
 		*-rc* | *-beta* | *-tp* ) DOCKER_CHANNEL='test' ;; \
@@ -426,7 +426,7 @@ RUN DOCKER_CHANNEL='edge'; \
 	rm /docker.tgz; \
 	\
 # download bash-completion too
-	wget -O usr/local/share/bash-completion/completions/docker "https://github.com/docker/docker-ce/raw/v${DOCKER_VERSION}/components/cli/contrib/completion/bash/docker"; \
+	wget -O usr/local/share/bash-completion/completions/docker "https://github.com/docker/cli/raw/v${DOCKER_VERSION}/contrib/completion/bash/docker"; \
 	\
 	for binary in \
 		containerd \
@@ -448,9 +448,9 @@ RUN { \
 		echo "VERSION_ID=$DOCKER_VERSION"; \
 		echo "PRETTY_NAME=\"Boot2Docker $DOCKER_VERSION (TCL $TCL_VERSION)\""; \
 		echo 'ANSI_COLOR="1;34"'; \
-		echo 'HOME_URL="https://github.com/boot2docker/boot2docker"'; \
-		echo 'SUPPORT_URL="https://blog.docker.com/2016/11/introducing-docker-community-directory-docker-community-slack/"'; \
-		echo 'BUG_REPORT_URL="https://github.com/boot2docker/boot2docker/issues"'; \
+		echo 'HOME_URL="https://github.com/dragonflylee/boot2docker"'; \
+		echo 'SUPPORT_URL="https://dragonfly.fun/devops/k3d.html"'; \
+		echo 'BUG_REPORT_URL="https://github.com/dragonflylee/boot2docker/issues"'; \
 	} > etc/os-release; \
 	sed -i 's/HOSTNAME="box"/HOSTNAME="boot2docker"/g' usr/bin/sethostname; \
 	tcl-chroot sethostname; \

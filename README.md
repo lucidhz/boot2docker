@@ -1,12 +1,6 @@
-# DEPRECATED
-
-Boot2Docker is officially deprecated and unmaintained.  It is recommended that users transition from Boot2Docker over to [Docker Desktop](https://www.docker.com/products/docker-desktop) instead (especially with [the new WSL2 backend, which supports Windows 10 Home](https://www.docker.com/blog/docker-desktop-for-windows-home-is-here/)).
-
-These days there are a *lot* of tools designed to help spin up environments, and it's relatively easy to get something up and running with Docker installed with minimal effort.
-
 # Boot2Docker
 
-[![Build Status](https://travis-ci.org/boot2docker/boot2docker.svg?branch=master)](https://travis-ci.org/boot2docker/boot2docker)
+[![Build Status](https://github.com/dragonflylee/boot2docker/actions/workflows/ci.yml/badge.svg)](https://github.com/dragonflylee/boot2docker/actions)
 
 Boot2Docker is a lightweight Linux distribution made specifically to run
 [Docker](https://www.docker.com/) containers. It runs completely from RAM, is a
