@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# TODO http://distro.ibiblio.org/tinycorelinux/latest-x86_64
-major='11.x'
-version='11.0' # TODO auto-detect latest
+# TODO http://mirrors.163.com/tinycorelinux/latest-x86_64
+major='12.x'
+version='12.0' # TODO auto-detect latest
 # 9.x doesn't seem to use ".../archive/X.Y.Z/..." in the same way as 8.x :(
 
 mirrors=(
-	http://distro.ibiblio.org/tinycorelinux
+	http://mirrors.163.com/tinycorelinux
 	http://repo.tinycorelinux.net
 )
 
 # https://www.kernel.org/
-kernelBase='4.19'
+kernelBase='5.10'
 # https://github.com/boot2docker/boot2docker/issues/1398
 # https://download.virtualbox.org/virtualbox/
 vboxBase='5'

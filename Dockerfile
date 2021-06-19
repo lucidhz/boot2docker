@@ -19,6 +19,7 @@ RUN apt-get update; \
 		libssl-dev \
 		make \
 		p7zip-full \
+		rsync \
 		patch \
 		squashfs-tools \
 		wget \
@@ -36,12 +37,12 @@ WORKDIR /rootfs
 
 # updated via "update.sh"
 ENV TCL_MIRRORS http://repo.tinycorelinux.net http://mirrors.163.com/tinycorelinux
-ENV TCL_MAJOR 11.x
-ENV TCL_VERSION 11.1
+ENV TCL_MAJOR 12.x
+ENV TCL_VERSION 12.0
 
-# http://mirrors.163.com/tinycorelinux/11.x/x86_64/release/distribution_files/rootfs64.gz.md5.txt
+# http://mirrors.163.com/tinycorelinux/12.x/x86_64/release/distribution_files/rootfs64.gz.md5.txt
 # updated via "update.sh"
-ENV TCL_ROOTFS="rootfs64.gz" TCL_ROOTFS_MD5="3c5846fd0eb2f4ecc15e424678ef7919"
+ENV TCL_ROOTFS="rootfs64.gz" TCL_ROOTFS_MD5="c83daf94a7095af711bc8a3e6968b5a7"
 
 COPY files/tce-load.patch files/udhcpc.patch /tcl-patches/
 
@@ -177,10 +178,10 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 4.19.195
+ENV LINUX_VERSION 5.10.45
 
-RUN wget -O /linux.tar.xz "http://mirrors.163.com/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
-	wget -O /linux.tar.asc "http://mirrors.163.com/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
+RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
+	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
 	\
 # decompress (signature is for the decompressed file)
 	xz --decompress /linux.tar.xz; \
@@ -332,9 +333,9 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 5.2.44
+ENV VBOX_VERSION 6.1.22
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 9883ee443a309f4ffa1d5dee2833f9e35ced598686c36d159f410e5edbac1ca4 
+ENV VBOX_SHA256 bffc316a7b8d5ed56d830e9f6aef02b4e5ffc28674032142e96ffbedd905f8c9 
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
