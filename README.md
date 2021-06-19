@@ -28,7 +28,7 @@ which installs [Docker Machine](https://docs.docker.com/machine/overview/),
 the Boot2Docker VM, and other necessary tools.
 
 The [ISO can be downloaded
-here](https://github.com/boot2docker/boot2docker/releases).
+here](https://github.com/dragonflylee/boot2docker/releases).
 
 ## How to use
 

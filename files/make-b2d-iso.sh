@@ -34,13 +34,13 @@ mkdir -p /tmp/stats
 {
 	echo "- Docker [v$DOCKER_VERSION](https://docs.docker.com/engine/release-notes/)"
 
-	echo "- Linux [v$LINUX_VERSION](https://cdn.kernel.org/pub/linux/kernel/v4.x/ChangeLog-$LINUX_VERSION)"
+	echo "- Linux [v$LINUX_VERSION](https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/ChangeLog-$LINUX_VERSION)"
 
 	echo "- Tiny Core Linux [v$TCL_VERSION](http://forum.tinycorelinux.net/index.php?board=31.0)"
 
 	echo "- Parallels Tools v$PARALLELS_VERSION" # https://github.com/boot2docker/boot2docker/pull/1332#issuecomment-420273330
 
-	ovtVersion=$(wget -qO- http://repo.tinycorelinux.net/11.x/x86_64/tcz/open-vm-tools.tcz.info | grep -oE 'Version:	[^ ]+' | cut -d$'\t' -f2)
+	ovtVersion=$(wget -qO- http://repo.tinycorelinux.net/$TCL_MAJOR/x86_64/tcz/open-vm-tools.tcz.info | grep -oE 'Version:	[^ ]+' | cut -d$'\t' -f2)
 
 	echo "- VMware Tools (\`open-vm-tools\`) [v$ovtVersion](http://repo.tinycorelinux.net/$TCL_MAJOR/x86_64/tcz/open-vm-tools.tcz.info)"
 
