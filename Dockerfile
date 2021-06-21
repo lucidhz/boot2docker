@@ -388,10 +388,10 @@ RUN wget -O /xen.tgz "https://github.com/xenserver/xe-guest-utilities/archive/v$
 	mkdir /usr/src/xen; \
 	tar --extract --file /xen.tgz --directory /usr/src/xen --strip-components 1; \
 	rm /xen.tgz
-# download "golang.org/x/sys/unix" dependency (new in 7.14.0)
+# download "golang.org/x/sys/unix" dependency (new in 7.30.0)
 RUN cd /usr/src/xen; \
 	mkdir -p GOPATH/src/golang.org/x/sys; \
-	wget -O sys.tgz 'https://github.com/golang/sys/archive/fc99dfbffb4e5ed5758a37e31dd861afe285406b.tar.gz'; \
+	wget -O sys.tgz 'https://github.com/golang/sys/archive/fe65e336abe0be631674a7f3242ec9f54b34faf7.tar.gz'; \
 	tar -xf sys.tgz -C GOPATH/src/golang.org/x/sys --strip-components 1; \
 	rm sys.tgz
 RUN GOPATH='/usr/src/xen/GOPATH' GOPROXY=goproxy.cn make -C /usr/src/xen -j "$(nproc)" PRODUCT_VERSION="$XEN_VERSION" RELEASE='boot2docker'; \
