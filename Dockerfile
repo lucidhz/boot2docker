@@ -166,9 +166,9 @@ RUN tcl-tce-load bash; \
 # /etc/profile has a minor root bug where it uses "\#" in PS1 instead of "\$" (so we get a counter in our prompt instead of a "#")
 # but also, does not use \[ and \] for escape sequences, so Bash readline gets confused, so let's replace it outright with something perty
 	grep '\\#' etc/profile; \
-	echo 'PS1='"'"'\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '"'"'' > etc/profile.d/boot2docker-ps1.sh; \
+	echo 'PS1='"'"'\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\W\[\e[0m\]\$ '"'"'' > etc/profile.d/boot2docker-ps1.sh; \
 	source etc/profile.d/boot2docker-ps1.sh; \
-	[ "$PS1" = '\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ ' ]
+	[ "$PS1" = '\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\W\[\e[0m\]\$ ' ]
 
 # https://www.kernel.org/category/signatures.html#important-fingerprints
 ENV LINUX_GPG_KEYS \
@@ -178,7 +178,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 5.10.81
+ENV LINUX_VERSION 5.10.85
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -333,9 +333,9 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 6.1.28
+ENV VBOX_VERSION 6.1.30
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 eab85206cfb9d7087982deb2635d19a4244a3c6783622a4817fb1a31e48e98e5 
+ENV VBOX_SHA256 d324d2d09d8dd00b1eb3ef3d80ab2e1726998421d13adc0d2a90e05d355aaa5c  
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -363,7 +363,7 @@ RUN tcl-tce-load open-vm-tools; \
 	tcl-chroot vmhgfs-fuse --version;
 	#tcl-chroot vmtoolsd --version
 
-ENV PARALLELS_VERSION 16.5.0-49183
+ENV PARALLELS_VERSION 16.5.2-50703
 
 RUN wget -O /parallels.tgz "https://download.parallels.com/desktop/v${PARALLELS_VERSION%%.*}/$PARALLELS_VERSION/ParallelsTools-$PARALLELS_VERSION-boot2docker.tar.gz"; \
 	mkdir /usr/src/parallels; \
@@ -383,7 +383,7 @@ RUN cp -vr /usr/src/parallels/tools/* ./; \
 # updated via "update.sh"
 ENV XEN_VERSION 7.30.0
 
-RUN wget -qO- https://dl.google.com/go/go1.16.9.linux-amd64.tar.gz | tar zxf - -C /usr/local --strip-components=1
+RUN wget -qO- https://dl.google.com/go/go1.16.11.linux-amd64.tar.gz | tar zxf - -C /usr/local --strip-components=1
 RUN wget -O /xen.tgz "https://github.com/xenserver/xe-guest-utilities/archive/v$XEN_VERSION.tar.gz"; \
 	mkdir /usr/src/xen; \
 	tar --extract --file /xen.tgz --directory /usr/src/xen --strip-components 1; \
@@ -413,7 +413,7 @@ RUN wget -O usr/local/sbin/cgroupfs-mount "https://github.com/tianon/cgroupfs-mo
 	chmod +x usr/local/sbin/cgroupfs-mount; \
 	tcl-chroot cgroupfs-mount
 
-ENV DOCKER_VERSION 20.10.11
+ENV DOCKER_VERSION 20.10.12
 
 # Get the Docker binaries with version that matches our boot2docker version.
 RUN DOCKER_CHANNEL='stable'; \
