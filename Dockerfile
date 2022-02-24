@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-xc"]
 
@@ -37,12 +37,12 @@ WORKDIR /rootfs
 
 # updated via "update.sh"
 ENV TCL_MIRRORS http://repo.tinycorelinux.net http://mirrors.163.com/tinycorelinux
-ENV TCL_MAJOR 12.x
-ENV TCL_VERSION 12.0
+ENV TCL_MAJOR 13.x
+ENV TCL_VERSION 13.0
 
-# http://mirrors.163.com/tinycorelinux/12.x/x86_64/release/distribution_files/rootfs64.gz.md5.txt
+# http://mirrors.163.com/tinycorelinux/13.x/x86_64/release/distribution_files/rootfs64.gz.md5.txt
 # updated via "update.sh"
-ENV TCL_ROOTFS="rootfs64.gz" TCL_ROOTFS_MD5="c83daf94a7095af711bc8a3e6968b5a7"
+ENV TCL_ROOTFS="rootfs64.gz" TCL_ROOTFS_MD5="91caf2cb61b38b3e3ef3be4d8f6f8701"
 
 COPY files/tce-load.patch files/udhcpc.patch /tcl-patches/
 
@@ -178,7 +178,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 5.10.85
+ENV LINUX_VERSION 5.15.25
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -333,9 +333,9 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 6.1.30
+ENV VBOX_VERSION 6.1.32
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 d324d2d09d8dd00b1eb3ef3d80ab2e1726998421d13adc0d2a90e05d355aaa5c  
+ENV VBOX_SHA256 3ab8d64c209d89ffc48e71df68ac0da2cf76074579ffaf2dba008ddbef44129c  
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -383,17 +383,11 @@ RUN cp -vr /usr/src/parallels/tools/* ./; \
 # updated via "update.sh"
 ENV XEN_VERSION 7.30.0
 
-RUN wget -qO- https://dl.google.com/go/go1.16.11.linux-amd64.tar.gz | tar zxf - -C /usr/local --strip-components=1
+RUN wget -qO- https://dl.google.com/go/go1.16.14.linux-amd64.tar.gz | tar zxf - -C /usr/local --strip-components=1
 RUN wget -O /xen.tgz "https://github.com/xenserver/xe-guest-utilities/archive/v$XEN_VERSION.tar.gz"; \
 	mkdir /usr/src/xen; \
 	tar --extract --file /xen.tgz --directory /usr/src/xen --strip-components 1; \
 	rm /xen.tgz
-# download "golang.org/x/sys/unix" dependency (new in 7.30.0)
-RUN cd /usr/src/xen; \
-	mkdir -p GOPATH/src/golang.org/x/sys; \
-	wget -O sys.tgz 'https://github.com/golang/sys/archive/fe65e336abe0be631674a7f3242ec9f54b34faf7.tar.gz'; \
-	tar -xf sys.tgz -C GOPATH/src/golang.org/x/sys --strip-components 1; \
-	rm sys.tgz
 RUN GOPATH='/usr/src/xen/GOPATH' GOPROXY=goproxy.cn make -C /usr/src/xen -j "$(nproc)" PRODUCT_VERSION="$XEN_VERSION" RELEASE='boot2docker'; \
 	tar --extract --file "/usr/src/xen/build/dist/xe-guest-utilities_$XEN_VERSION-boot2docker_x86_64.tgz"; \
 	tcl-chroot xenstore || [ "$?" = 1 ]
