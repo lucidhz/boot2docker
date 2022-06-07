@@ -38,11 +38,11 @@ WORKDIR /rootfs
 # updated via "update.sh"
 ENV TCL_MIRRORS http://repo.tinycorelinux.net http://mirrors.163.com/tinycorelinux
 ENV TCL_MAJOR 13.x
-ENV TCL_VERSION 13.0
+ENV TCL_VERSION 13.1
 
 # http://mirrors.163.com/tinycorelinux/13.x/x86_64/release/distribution_files/rootfs64.gz.md5.txt
 # updated via "update.sh"
-ENV TCL_ROOTFS="rootfs64.gz" TCL_ROOTFS_MD5="91caf2cb61b38b3e3ef3be4d8f6f8701"
+ENV TCL_ROOTFS="rootfs64.gz" TCL_ROOTFS_MD5="337441ac3eb75561a9d702d783e678ba"
 
 COPY files/tce-load.patch files/udhcpc.patch /tcl-patches/
 
@@ -178,7 +178,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 5.15.31
+ENV LINUX_VERSION 5.15.45
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -333,9 +333,9 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 6.1.32
+ENV VBOX_VERSION 6.1.34
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 3ab8d64c209d89ffc48e71df68ac0da2cf76074579ffaf2dba008ddbef44129c  
+ENV VBOX_SHA256 88f86fa0e6970b6a7c80d714b7a91a8c425ff8ef53a3e73fc80781191a87257b  
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -363,7 +363,7 @@ RUN tcl-tce-load open-vm-tools; \
 	tcl-chroot vmhgfs-fuse --version;
 	#tcl-chroot vmtoolsd --version
 
-ENV PARALLELS_VERSION 17.1.2-51548
+ENV PARALLELS_VERSION 17.1.4-51567
 
 RUN wget -O /parallels.tgz "https://download.parallels.com/desktop/v${PARALLELS_VERSION%%.*}/$PARALLELS_VERSION/ParallelsTools-$PARALLELS_VERSION-boot2docker.tar.gz"; \
 	mkdir /usr/src/parallels; \
@@ -383,7 +383,7 @@ RUN cp -vr /usr/src/parallels/tools/* ./; \
 # updated via "update.sh"
 ENV XEN_VERSION 7.30.0
 
-RUN wget -qO- https://dl.google.com/go/go1.16.14.linux-amd64.tar.gz | tar zxf - -C /usr/local --strip-components=1
+RUN wget -qO- https://dl.google.com/go/go1.17.11.linux-amd64.tar.gz | tar zxf - -C /usr/local --strip-components=1
 RUN wget -O /xen.tgz "https://github.com/xenserver/xe-guest-utilities/archive/v$XEN_VERSION.tar.gz"; \
 	mkdir /usr/src/xen; \
 	tar --extract --file /xen.tgz --directory /usr/src/xen --strip-components 1; \
@@ -407,7 +407,7 @@ RUN wget -O usr/local/sbin/cgroupfs-mount "https://github.com/tianon/cgroupfs-mo
 	chmod +x usr/local/sbin/cgroupfs-mount; \
 	tcl-chroot cgroupfs-mount
 
-ENV DOCKER_VERSION 20.10.14
+ENV DOCKER_VERSION 20.10.17
 
 # Get the Docker binaries with version that matches our boot2docker version.
 RUN DOCKER_CHANNEL='stable'; \
