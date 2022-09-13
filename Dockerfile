@@ -178,7 +178,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 5.15.45
+ENV LINUX_VERSION 5.15.67
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -333,9 +333,9 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 6.1.34
+ENV VBOX_VERSION 6.1.38
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 88f86fa0e6970b6a7c80d714b7a91a8c425ff8ef53a3e73fc80781191a87257b  
+ENV VBOX_SHA256 54e62a292bd0178d352d395bb715fd8cd25927cc955ef052d69d4b42f2587165  
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -407,7 +407,7 @@ RUN wget -O usr/local/sbin/cgroupfs-mount "https://github.com/tianon/cgroupfs-mo
 	chmod +x usr/local/sbin/cgroupfs-mount; \
 	tcl-chroot cgroupfs-mount
 
-ENV DOCKER_VERSION 20.10.17
+ENV DOCKER_VERSION 20.10.18
 
 # Get the Docker binaries with version that matches our boot2docker version.
 RUN DOCKER_CHANNEL='stable'; \
