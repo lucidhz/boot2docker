@@ -32,7 +32,7 @@ mkdir -p /tmp/stats
 	echo '```'
 ) | tee /tmp/stats/sums.md
 {
-	echo "- Docker [v$DOCKER_VERSION](https://docs.docker.com/engine/release-notes/)"
+	echo "- Docker [v$DOCKER_VERSION](https://docs.docker.com/engine/release-notes/${DOCKER_VERSION%.*})"
 
 	echo "- Linux [v$LINUX_VERSION](https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/ChangeLog-$LINUX_VERSION)"
 
