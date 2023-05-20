@@ -178,7 +178,7 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 5.15.107
+ENV LINUX_VERSION 5.15.112
 
 RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
@@ -333,9 +333,9 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 7.0.6
+ENV VBOX_VERSION 7.0.8
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 21e0f407d2a4f5c286084a70718aa20235ea75969eca0cab6cfab43a3499a010  
+ENV VBOX_SHA256 8d73e2361afbf696e6128ffa5e96d9f6a78ff32cb2cb54c727a5be7992be0b31  
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -363,7 +363,7 @@ RUN tcl-tce-load open-vm-tools; \
 	tcl-chroot vmhgfs-fuse --version;
 	#tcl-chroot vmtoolsd --version
 
-ENV PARALLELS_VERSION 18.1.1-53328
+ENV PARALLELS_VERSION 18.3.0-53606
 
 RUN wget -O /parallels.tgz "https://download.parallels.com/desktop/v${PARALLELS_VERSION%%.*}/$PARALLELS_VERSION/ParallelsTools-$PARALLELS_VERSION-boot2docker.tar.gz"; \
 	mkdir /usr/src/parallels; \
@@ -383,7 +383,7 @@ RUN cp -vr /usr/src/parallels/tools/* ./; \
 # updated via "update.sh"
 ENV XEN_VERSION 7.33.0
 
-RUN wget -qO- https://dl.google.com/go/go1.19.5.linux-amd64.tar.gz | tar zxf - -C /usr/local --strip-components=1
+RUN wget -qO- https://dl.google.com/go/go1.19.9.linux-amd64.tar.gz | tar zxf - -C /usr/local --strip-components=1
 RUN wget -O /xen.tgz "https://github.com/xenserver/xe-guest-utilities/archive/v$XEN_VERSION.tar.gz"; \
 	mkdir -p /usr/src/xen; \
 	tar --extract --file /xen.tgz --directory /usr/src/xen --strip-components 1; \
