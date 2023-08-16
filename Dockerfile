@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 SHELL ["/bin/bash", "-Eeuo", "pipefail", "-xc"]
 
@@ -121,7 +121,7 @@ RUN mkdir -p proc; \
 
 # as of squashfs-tools 4.4, TCL's unsquashfs is broken... (fails to unsquashfs *many* core tcz files)
 # https://github.com/plougher/squashfs-tools/releases
-ENV SQUASHFS_VERSION 4.4
+ENV SQUASHFS_VERSION 4.6.1
 RUN wget -O squashfs.tgz "https://github.com/plougher/squashfs-tools/archive/$SQUASHFS_VERSION.tar.gz"; \
 	tar --directory=/usr/src --extract --file=squashfs.tgz; \
 	make -C "/usr/src/squashfs-tools-$SQUASHFS_VERSION/squashfs-tools" \
@@ -178,9 +178,22 @@ ENV LINUX_GPG_KEYS \
 		647F28654894E3BD457199BE38DBBDC86092693E
 
 # updated via "update.sh"
-ENV LINUX_VERSION 4.19.103
+ENV LINUX_VERSION 4.19.291
 
-RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
+RUN \
+	export GNUPGHOME="$(mktemp -d)"; \
+	for key in $LINUX_GPG_KEYS; do \
+		for mirror in \
+            hkps://pgp.surf.nl \
+			hkp://pgp.rediris.es \
+		; do \
+			if gpg --batch --verbose --keyserver "$mirror" --keyserver-options timeout=5 --recv-keys "$key"; then \
+				break; \
+			fi; \
+		done; \
+		gpg --batch --fingerprint "$key"; \
+	done; \ 
+	wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.xz"; \
 	wget -O /linux.tar.asc "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERSION%%.*}.x/linux-${LINUX_VERSION}.tar.sign"; \
 	\
 # decompress (signature is for the decompressed file)
@@ -188,22 +201,6 @@ RUN wget -O /linux.tar.xz "https://cdn.kernel.org/pub/linux/kernel/v${LINUX_VERS
 	[ -f /linux.tar ] && [ ! -f /linux.tar.xz ]; \
 	\
 # verify
-	export GNUPGHOME="$(mktemp -d)"; \
-	for key in $LINUX_GPG_KEYS; do \
-		for mirror in \
-			ha.pool.sks-keyservers.net \
-			pgp.mit.edu \
-			hkp://p80.pool.sks-keyservers.net:80 \
-			ipv4.pool.sks-keyservers.net \
-			keyserver.ubuntu.com \
-			hkp://keyserver.ubuntu.com:80 \
-		; do \
-			if gpg --batch --verbose --keyserver "$mirror" --keyserver-options timeout=5 --recv-keys "$key"; then \
-				break; \
-			fi; \
-		done; \
-		gpg --batch --fingerprint "$key"; \
-	done; \
 	gpg --batch --verify /linux.tar.asc /linux.tar; \
 	gpgconf --kill all; \
 	rm -rf "$GNUPGHOME"; \
@@ -361,7 +358,7 @@ RUN make -C /usr/src/vbox/amd64/src/vboxguest -j "$(nproc)" \
 # TCL includes VMware's open-vm-tools 10.2.0.1608+ (no reason to compile that ourselves)
 RUN tcl-tce-load open-vm-tools; \
 	tcl-chroot vmhgfs-fuse --version; \
-	tcl-chroot vmtoolsd --version
+	echo tcl-chroot vmtoolsd --version
 
 ENV PARALLELS_VERSION 13.3.0-43321
 
@@ -381,7 +378,7 @@ RUN cp -vr /usr/src/parallels/tools/* ./; \
 
 # https://github.com/xenserver/xe-guest-utilities/tags
 # updated via "update.sh"
-ENV XEN_VERSION 7.18.0
+ENV XEN_VERSION 7.20.2
 
 RUN wget -O /xen.tgz "https://github.com/xenserver/xe-guest-utilities/archive/v$XEN_VERSION.tar.gz"; \
 	mkdir /usr/src/xen; \
@@ -412,10 +409,10 @@ RUN wget -O usr/local/sbin/cgroupfs-mount "https://github.com/tianon/cgroupfs-mo
 	chmod +x usr/local/sbin/cgroupfs-mount; \
 	tcl-chroot cgroupfs-mount
 
-ENV DOCKER_VERSION 19.03.6
+ENV DOCKER_VERSION 24.0.5
 
 # Get the Docker binaries with version that matches our boot2docker version.
-RUN DOCKER_CHANNEL='edge'; \
+RUN DOCKER_CHANNEL='stable'; \
 	case "$DOCKER_VERSION" in \
 # all the pre-releases go in the "test" channel
 		*-rc* | *-beta* | *-tp* ) DOCKER_CHANNEL='test' ;; \
@@ -426,7 +423,7 @@ RUN DOCKER_CHANNEL='edge'; \
 	rm /docker.tgz; \
 	\
 # download bash-completion too
-	wget -O usr/local/share/bash-completion/completions/docker "https://github.com/docker/docker-ce/raw/v${DOCKER_VERSION}/components/cli/contrib/completion/bash/docker"; \
+#	wget -O usr/local/share/bash-completion/completions/docker "https://github.com/docker/docker-ce/raw/v${DOCKER_VERSION}/components/cli/contrib/completion/bash/docker"; \
 	\
 	for binary in \
 		containerd \
