@@ -5,9 +5,18 @@ on:
   pull_request:
 
   push:
+  workflow_dispatch:
+    inputs:
+      deployOn:
+        type: choice
+        required: false
+        description: 'deploy boot2docker'
+        options:
+        - false
+        - true
 
-  schedule:
-    - cron: 0 0 * * 0
+#  schedule:
+#    - cron: 0 0 * * 0
 
 jobs:
 
@@ -46,3 +55,8 @@ jobs:
 
       - name: '"docker images"'
         run: docker images
+      - uses: actions/upload-artifact@v2
+        if: ${{ github.event.inputs.deployOn == 'true' || startsWith(github.ref_name, 'tag4') }}
+        with:
+          name: boot2docker.iso
+          path: ./boot2docker.iso
