@@ -330,9 +330,9 @@ RUN make -C /usr/src/linux INSTALL_HDR_PATH=/usr/local headers_install
 
 # http://download.virtualbox.org/virtualbox/
 # updated via "update.sh"
-ENV VBOX_VERSION 5.2.36
+ENV VBOX_VERSION 6.1.46
 # https://www.virtualbox.org/download/hashes/$VBOX_VERSION/SHA256SUMS
-ENV VBOX_SHA256 6124287b7a1790436a9b0b2601154b50c6cd6e680aeff45c61d03ee1158f3eb9
+ENV VBOX_SHA256 a65927369c852895e827c6d6d5be3d14c2da1dfd4e7a4b9ca7479320e5121ffc
 # (VBoxGuestAdditions_X.Y.Z.iso SHA256, for verification)
 
 RUN wget -O /vbox.iso "https://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso"; \
@@ -360,7 +360,7 @@ RUN tcl-tce-load open-vm-tools; \
 	tcl-chroot vmhgfs-fuse --version; \
 	echo tcl-chroot vmtoolsd --version
 
-ENV PARALLELS_VERSION 13.3.0-43321
+ENV PARALLELS_VERSION 13.3.2-43368
 
 RUN wget -O /parallels.tgz "https://download.parallels.com/desktop/v${PARALLELS_VERSION%%.*}/$PARALLELS_VERSION/ParallelsTools-$PARALLELS_VERSION-boot2docker.tar.gz"; \
 	mkdir /usr/src/parallels; \
@@ -480,6 +480,9 @@ RUN awk -F: ' \
 		echo 'exec login -f "${user:-docker}"'; \
 	} > usr/local/sbin/autologin; \
 	chmod +x usr/local/sbin/autologin
+
+#disable autologin
+RUN mkdir -p etc/sysconfig;echo booting > etc/sysconfig/noautologin
 
 # ssh config prep
 RUN [ ! -f usr/local/etc/sshd_config ]; \
