@@ -78,6 +78,10 @@ fi
 # "env -i" thanks to https://github.com/moby/moby/issues/39009 ...
 env -i PATH="$PATH" /etc/init.d/docker start
 
+if [ -f /var/lib/boot2docker/no-bootlocal.sh ]; then
+  exit
+fi
+
 if [ -e /var/lib/boot2docker/bootlocal.sh ]; then
 	sh /var/lib/boot2docker/bootlocal.sh &
 fi
