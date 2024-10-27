@@ -31,7 +31,8 @@ jobs:
           docker run --rm boot2docker/boot2docker > boot2docker.iso
           docker run --rm boot2docker/boot2docker cat /tmp/stats/state.md /tmp/stats/sums.md > stats.md
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')        
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
